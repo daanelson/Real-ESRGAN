@@ -1,6 +1,7 @@
 name: replicate-ci
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
