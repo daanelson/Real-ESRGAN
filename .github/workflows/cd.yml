@@ -1,18 +1,22 @@
-name: cd
+name: replicate-cd
 
 on:
   push:
     branches:
-      - main
       - master
 
 jobs:
   push:
     runs-on: ubuntu-latest
+    env:
+      BASE_IMAGE: 'daanelson/real-esrgan-a100'
+      PUSH_DEST: 'daanelson/real-esrgan-a100'
 
     steps:
     - name: checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: install yolo
       run: |
@@ -20,8 +24,15 @@ jobs:
         sudo chmod +x /usr/local/bin/yolo
 
     - name: what changed
-      run: some sorta diff to determine what has changed
+      id: files
+      run: |
+        FILES_CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)
+        echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
 
     - name: push model
-      -- todo - yolo push model
-      -- model specific config - where are we pushing this model
+      env:
+       REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
+      run: |
+        echo "pushing changes from $BASE_IMAGE to $PUSH_DEST"
+        echo "changed files: $FILES_CHANGED"
+        yolo push --base $BASE_IMAGE --dest $PUSH_DEST $FILES_CHANGED
