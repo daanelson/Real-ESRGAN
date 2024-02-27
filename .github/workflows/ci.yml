@@ -28,11 +28,8 @@ jobs:
     - name: what changed
       id: files
       run: |
-        {
-          echo 'FILES_CHANGED<<HAT'
-          git diff --name-only origin/master ${{ github.event.after }}
-          echo HAT
-        } >> $GITHUB_ENV
+        FILES_CHANGED=$(git diff --name-only origin/master ${{ github.event.after }} | xargs)
+        echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
 
     - name: did it change
       run: |
