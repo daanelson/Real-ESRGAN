@@ -1,7 +1,6 @@
 name: replicate-ci
 
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - master
@@ -27,7 +26,7 @@ jobs:
     - name: what changed
       id: files
       run: |
-        FILES_CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)
+        FILES_CHANGED=$(git diff --name-only --diff-filter=AMR ${{ github.event.before }} ${{ github.event.after }} | xargs)
         echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
 
     - name: push model
