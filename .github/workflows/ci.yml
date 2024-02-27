@@ -11,6 +11,7 @@ jobs:
     env:
       BASE_IMAGE: 'daanelson/real-esrgan-a100'
       PUSH_DEST: 'daanelson/real-esrgan-staging'
+      TEST_ENDPOINT: 'https://replica'
 
     steps:
     - name: checkout
