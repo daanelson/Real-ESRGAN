@@ -32,9 +32,10 @@ jobs:
     - name: push model
       env:
        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
+       SENTRY_DSN: ${{secrets.SENTRY_DSN}}
       run: |
         echo "pushing changes from $BASE_IMAGE to $PUSH_DEST"
         echo "changed files: $FILES_CHANGED"
-        yolo push --base $BASE_IMAGE --dest $PUSH_DEST $FILES_CHANGED
+        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $BASE_IMAGE --dest $PUSH_DEST $FILES_CHANGED
 
     ## TODO once it exists - use deployments API to update appropriate deployment

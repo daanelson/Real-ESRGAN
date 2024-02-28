@@ -16,6 +16,7 @@ build:
     - "opencv-python==4.6.0.66"
     - "Pillow==9.1.1"
     - "tqdm==4.64.0"
+    - "sentry-sdk"
 
   run:
     - "pip install basicsr"

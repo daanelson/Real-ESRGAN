@@ -6,6 +6,7 @@ import os
 import tempfile
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from cog import BasePredictor, Input, Path
+import sentry_sdk
 
 from gfpgan import GFPGANer
 from realesrgan import RealESRGANer
@@ -17,6 +18,13 @@ GFPGAN_PATH = "/root/.cache/realesrgan/GFPGANv1.3.pth"
 
 class Predictor(BasePredictor):
     def setup(self):
+        sentry_dsn = os.getenv("SENTRY_DSN", "no-op")
+        if sentry_dsn != "no-op":
+            sentry_sdk.init(
+                dsn=sentry_dsn,
+            )
+            print("sentry init")
+
         model = RRDBNet(
             num_in_ch=3,
             num_out_ch=3,

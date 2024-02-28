@@ -3,7 +3,6 @@ It's tests.
 Spins up a cog server and hits it with the HTTP API if you're local; runs through the python client if you're not
 """
 
-
 import base64
 import os
 import subprocess
