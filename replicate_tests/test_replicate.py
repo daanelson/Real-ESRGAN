@@ -19,7 +19,7 @@ import pickle
 
 ENV = os.getenv('TEST_ENV', 'local')
 LOCAL_ENDPOINT = "http://localhost:5000/predictions"
-MODEL = os.getenv('REPLICATE_MODEL', 'daanelson/real-esrgan-a100')
+MODEL = os.getenv('STAGING_MODEL', 'daanelson/real-esrgan-a100')
 print(MODEL)
 
 def local_run(model_endpoint: str, model_input: dict):

@@ -9,8 +9,8 @@ jobs:
   push:
     runs-on: ubuntu-latest
     env:
-      BASE_IMAGE: 'daanelson/real-esrgan-fake-prod'
-      PUSH_DEST: 'daanelson/real-esrgan-staging'
+      BASE_MODEL: 'daanelson/real-esrgan-fake-prod'
+      STAGING_MODEL: 'daanelson/real-esrgan-staging'
 
     steps:
     - name: checkout
@@ -55,13 +55,13 @@ jobs:
     - name: cog-push
       if: steps.what-changed.outputs.cog-push == 'true'
       run: |
-        cog push r8.im/"$PUSH_DEST"
+        cog push r8.im/"$STAGING_MODEL"
 
     - name: install-yolo
       run: |
         sudo curl -o /usr/local/bin/yolo -L "https://github.com/replicate/yolo/releases/latest/download/yolo_$(uname -s)_$(uname -m)"
         sudo chmod +x /usr/local/bin/yolo
-
+    # TODO: we actually don't want sentry in staging.
     # yolo as hack for pushing environment variables
     - name: yolo-push-env
       if: steps.what-changed.outputs.cog-push == 'true'
@@ -70,8 +70,8 @@ jobs:
        SENTRY_DSN: ${{secrets.SENTRY_DSN}}
       run: |
         touch meaningless_file.txt
-        echo "adding environment variables to $PUSH_DEST"
-        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $PUSH_DEST --dest $PUSH_DEST meaningless_file.txt
+        echo "adding environment variables to $STAGING_MODEL"
+        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $STAGING_MODEL --dest $STAGING_MODEL meaningless_file.txt
 
     - name: yolo-push
       if: steps.what-changed.outputs.cog-push == 'false'
@@ -79,11 +79,21 @@ jobs:
        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
        SENTRY_DSN: ${{secrets.SENTRY_DSN}}
       run: |
-        echo "pushing changes from $BASE_IMAGE to $PUSH_DEST"
+        echo "pushing changes from $BASE_MODEL to $STAGING_MODEL"
         echo "changed files: $FILES_CHANGED"
-        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $BASE_IMAGE --dest $PUSH_DEST $FILES_CHANGED
+        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $BASE_MODEL --dest $STAGING_MODEL $FILES_CHANGED
 
-    # - name: test model
-    #   -- just run some http tests
-    #   -- borrow template from SDXL
-    #   -- pass in some flag s.t. we're testing in prod
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: install python test deps
+      run: |
+        pip install -r requirements_replicate_test.txt
+
+    - name: test model
+      env:
+       REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
+       TEST_ENV: 'staging'
+      run: |
+        pytest replicate_tests
