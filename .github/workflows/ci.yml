@@ -29,7 +29,7 @@ jobs:
           else
             echo "cog-push=false" >> $GITHUB_OUTPUT
           fi
-        if contains(github.event.head_commit.message, '[cog build]'); then
+        if ${{ contains(github.event.head_commit.message, '[cog build]') }}; then
             echo "cog-push=true" >> $GITHUB_OUTPUT
 
     # if cog.yaml changes - cog build and push. else - yolo build and push
