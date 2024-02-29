@@ -19,8 +19,8 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: what-changed
-      id: files
+    - name: what changed
+      id: what-changed
       run: |
         FILES_CHANGED=$(git diff --name-only --diff-filter=AMR ${{ github.event.before }} ${{ github.event.after }} | xargs)
         echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
