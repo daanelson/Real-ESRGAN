@@ -47,23 +47,23 @@ jobs:
         token: ${{ secrets.REPLICATE_API_TOKEN }}
 
     - name: cog-build
-      if: steps.what-changed.outputs.cog_push == 'true'
+      if: steps.what-changed.outputs.cog-push == 'true'
       run: |
         cog build
 
     - name: cog-push
-      if: steps.what-changed.outputs.cog_push == 'true'
+      if: steps.what-changed.outputs.cog-push == 'true'
       run: |
         cog push r8.im/"$PUSH_DEST"
 
     - name: install-yolo
-      if: steps.what-changed.outputs.cog_push == 'false'
+      if: steps.what-changed.outputs.cog-push == 'false'
       run: |
         sudo curl -o /usr/local/bin/yolo -L "https://github.com/replicate/yolo/releases/latest/download/yolo_$(uname -s)_$(uname -m)"
         sudo chmod +x /usr/local/bin/yolo
 
     - name: yolo-push
-      if: steps.what-changed.outputs.cog_push == 'false'
+      if: steps.what-changed.outputs.cog-push == 'false'
       env:
        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
        SENTRY_DSN: ${{secrets.SENTRY_DSN}}
