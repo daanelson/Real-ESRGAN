@@ -32,32 +32,29 @@ jobs:
 
     # if cog.yaml changes - cog build and push. else - yolo build and push
 
-    - name: cog-push
-      run: a cog push
-
-    - name: Setup cog
+    - name: setup-cog
       if: steps.what-changed.outputs.cog_push == 'true'
       uses: replicate/setup-cog@v1.0.2
       with:
         token: ${{ secrets.REPLICATE_API_TOKEN }}
 
-    - name: cog build
+    - name: cog-build
       if: steps.what-changed.outputs.cog_push == 'true'
       run: |
         cog build
 
-    - name: cog push
+    - name: cog-push
       if: steps.what-changed.outputs.cog_push == 'true'
       run: |
         cog push r8.im/"$PUSH_DEST"
 
-    - name: install yolo
+    - name: install-yolo
       if: steps.what-changed.outputs.cog_push == 'false'
       run: |
         sudo curl -o /usr/local/bin/yolo -L "https://github.com/replicate/yolo/releases/latest/download/yolo_$(uname -s)_$(uname -m)"
         sudo chmod +x /usr/local/bin/yolo
 
-    - name: push model
+    - name: push-model
       if: steps.what-changed.outputs.cog_push == 'false'
       env:
        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
