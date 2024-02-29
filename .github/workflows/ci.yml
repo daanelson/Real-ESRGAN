@@ -33,7 +33,7 @@ jobs:
             echo "cog-push=true" >> $GITHUB_OUTPUT
           fi
 
-    # if cog.yaml changes - cog build and push. else - yolo build and push
+    # if cog.yaml changes - cog build and push. else - yolo build and push!
     - name: did-it-tho
       env:
         COG_PUSH: ${{ steps.what-changed.outputs.cog-push }}
