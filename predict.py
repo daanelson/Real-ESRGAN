@@ -62,17 +62,26 @@ class Predictor(BasePredictor):
             default=False,
         ),
     ) -> Path:
-        img = cv2.imread(str(image), cv2.IMREAD_UNCHANGED)
+        try:
+            img = cv2.imread(str(image), cv2.IMREAD_UNCHANGED)
 
-        if face_enhance:
-            print("running with face enhancement")
-            self.face_enhancer.upscale = scale
-            _, _, output = self.face_enhancer.enhance(
-                img, has_aligned=False, only_center_face=False, paste_back=True
-            )
-        else:
-            print("running without face enhancement!!")
-            output, _ = self.upsampler.enhance(img, outscale=scale)
-        save_path = os.path.join(tempfile.mkdtemp(), "output.png")
-        cv2.imwrite(save_path, output)
+            if face_enhance:
+                print("running with face enhancement")
+                self.face_enhancer.upscale = scale
+                _, _, output = self.face_enhancer.enhance(
+                    img, has_aligned=False, only_center_face=False, paste_back=True
+                )
+            else:
+                print("running without face enhancement!!")
+                print(img.shape)
+                output, _ = self.upsampler.enhance(img, outscale=scale)
+            save_path = os.path.join(tempfile.mkdtemp(), "output.png")
+            cv2.imwrite(save_path, output)
+
+        except Exception as e:
+            if img is not None:
+                img_shape = img.shape
+                del image
+            sentry_sdk.capture_exception(e)
+            raise e
         return Path(save_path)

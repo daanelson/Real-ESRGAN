@@ -9,8 +9,8 @@ jobs:
   push:
     runs-on: ubuntu-latest
     env:
-      BASE_IMAGE: 'daanelson/real-esrgan-a100'
-      PUSH_DEST: 'daanelson/real-esrgan-a100'
+      BASE_IMAGE: 'daanelson/real-esrgan-fake-prod'
+      PUSH_DEST: 'daanelson/real-esrgan-fake-prod'
 
     steps:
     - name: checkout
