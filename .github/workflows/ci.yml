@@ -46,6 +46,7 @@ jobs:
       uses: replicate/setup-cog@v1.0.2
       with:
         token: ${{ secrets.REPLICATE_API_TOKEN }}
+        install-cuda: false
 
     - name: cog-build
       if: steps.what-changed.outputs.cog-push == 'true'
