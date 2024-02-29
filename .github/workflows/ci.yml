@@ -26,10 +26,8 @@ jobs:
         echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
         if echo "$FILES_CHANGED" | grep -q 'cog.yaml'; then
             echo "cog-push=true" >> $GITHUB_OUTPUT
-            echo "TRUE"
           else
             echo "cog-push=false" >> $GITHUB_OUTPUT
-            echo "FALSE"
           fi
 
     # if cog.yaml changes - cog build and push. else - yolo build and push
