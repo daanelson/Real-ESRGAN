@@ -9,8 +9,9 @@ jobs:
   push:
     runs-on: ubuntu-latest
     env:
-      BASE_MODEL: 'daanelson/real-esrgan-fake-prod'
+      BASE_MODEL: 'daanelson/real-esrgan-fake-prod-model'
       STAGING_MODEL: 'daanelson/real-esrgan-staging'
+      STAGING_DEPLOYMENT: 'daanelson/real-esrgan-staging-official'
 
     steps:
     - name: checkout
@@ -89,7 +90,7 @@ jobs:
 
     - name: install python test deps
       run: |
-        pip install -r requirements_replicate_test.txt
+        pip install -r requirements_test.txt
 
     - name: test model
       env:
@@ -97,3 +98,18 @@ jobs:
        TEST_ENV: 'staging'
       run: |
         pytest replicate_tests
+
+    - name: update deployment
+      env:
+        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
+
+      run: |
+        sudo apt-get install jq
+        export LATEST_VERSION=$(curl -s -H "Authorization: Token $REPLICATE_API_TOKEN" \
+          https://api.replicate.com/v1/models/$STAGING_MODEL/versions | jq -r '.results[0].id')
+        curl -s \
+          -X PATCH \
+          -H "Authorization: Token $REPLICATE_API_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{"version": "'$LATEST_VERSION'" }' \
+          https://api.replicate.com/v1/deployments/$STAGING_DEPLOYMENT
