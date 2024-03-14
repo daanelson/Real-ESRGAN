@@ -84,4 +84,5 @@ class Predictor(BasePredictor):
                 del image
             sentry_sdk.capture_exception(e)
             raise e
+        print("beep")
         return Path(save_path)
