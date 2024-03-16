@@ -19,7 +19,7 @@ import pickle
 
 ENV = os.getenv('TEST_ENV', 'local')
 LOCAL_ENDPOINT = "http://localhost:5000/predictions"
-MODEL = os.getenv('STAGING_MODEL', 'no model configured')
+MODEL = os.getenv(f'{ENV.upper()}_MODEL', 'no model configured')
 print(MODEL)
 
 def local_run(model_endpoint: str, model_input: dict):
@@ -82,12 +82,12 @@ def wait_for_server_to_be_ready(url, timeout=300):
 def inference_func():
     if ENV == 'local':
         return partial(local_run, LOCAL_ENDPOINT)
-    elif ENV == 'staging':
+    elif ENV in {'staging', 'prod'}:
         model = replicate.models.get(MODEL)
         version = model.versions.list()[0]
         return partial(replicate_run, MODEL, version.id)
     else:
-        raise Exception(f"env should be local or staging but was {ENV}")
+        raise Exception(f"env should be local, staging, or prod but was {ENV}")
 
 
 @pytest.fixture(scope="session", autouse=True)

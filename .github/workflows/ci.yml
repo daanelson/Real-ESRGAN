@@ -11,7 +11,6 @@ jobs:
     env:
       BASE_MODEL: 'daanelson/real-esrgan-fake-prod-model'
       STAGING_MODEL: 'daanelson/real-esrgan-staging'
-      STAGING_DEPLOYMENT: 'daanelson/real-esrgan-staging-official'
 
     steps:
     - name: checkout
@@ -22,7 +21,7 @@ jobs:
     - name: what changed
       id: what-changed
       run: |
-        FILES_CHANGED=$(git diff --name-only --diff-filter=AMR ${{ github.event.before }} ${{ github.event.after }} | xargs)
+        FILES_CHANGED=$(git diff --name-only --diff-filter=AMR origin/main HEAD | xargs)
         echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
         if echo "$FILES_CHANGED" | grep -q 'cog.yaml'; then
             echo "cog-push=true" >> $GITHUB_OUTPUT
@@ -59,20 +58,10 @@ jobs:
         cog push r8.im/"$STAGING_MODEL"
 
     - name: install-yolo
+      if: steps.what-changed.outputs.cog-push == 'false'
       run: |
         sudo curl -o /usr/local/bin/yolo -L "https://github.com/replicate/yolo/releases/latest/download/yolo_$(uname -s)_$(uname -m)"
         sudo chmod +x /usr/local/bin/yolo
-    # TODO: we actually don't want sentry in staging.
-    # yolo as hack for pushing environment variables
-    - name: yolo-push-env
-      if: steps.what-changed.outputs.cog-push == 'true'
-      env:
-       REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
-       SENTRY_DSN: ${{secrets.SENTRY_DSN}}
-      run: |
-        touch meaningless_file.txt
-        echo "adding environment variables to $STAGING_MODEL"
-        yolo push -e SENTRY_DSN="$SENTRY_DSN" --base $STAGING_MODEL --dest $STAGING_MODEL meaningless_file.txt
 
     - name: yolo-push
       if: steps.what-changed.outputs.cog-push == 'false'
@@ -99,17 +88,3 @@ jobs:
       run: |
         pytest replicate_tests
 
-    - name: update deployment
-      env:
-        REPLICATE_API_TOKEN: ${{secrets.REPLICATE_API_TOKEN}}
-
-      run: |
-        sudo apt-get install jq
-        export LATEST_VERSION=$(curl -s -H "Authorization: Token $REPLICATE_API_TOKEN" \
-          https://api.replicate.com/v1/models/$STAGING_MODEL/versions | jq -r '.results[0].id')
-        curl -s \
-          -X PATCH \
-          -H "Authorization: Token $REPLICATE_API_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{"version": "'$LATEST_VERSION'" }' \
-          https://api.replicate.com/v1/deployments/$STAGING_DEPLOYMENT
