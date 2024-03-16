@@ -15,12 +15,11 @@ from functools import partial
 from PIL import Image
 from io import BytesIO
 import numpy as np
-import pickle
 
 ENV = os.getenv('TEST_ENV', 'local')
 LOCAL_ENDPOINT = "http://localhost:5000/predictions"
 MODEL = os.getenv(f'{ENV.upper()}_MODEL', 'no model configured')
-print(MODEL)
+
 
 def local_run(model_endpoint: str, model_input: dict):
     response = requests.post(model_endpoint, json={"input": model_input})
@@ -140,6 +139,3 @@ def test_base_example(inference_func):
     img_out_array = np.array(img_out, dtype=np.uint16)
     expected_array = np.array(expected_img, dtype=np.uint16)
     assert np.allclose(img_out_array, expected_array, atol=20)
-
-
-# TODO - face enhance seems to always upscale to 4x. Let's say that this is expected behavior

@@ -81,6 +81,7 @@ class Predictor(BasePredictor):
         except Exception as e:
             if img is not None:
                 img_shape = img.shape
+                print(f"capturing {img_shape} for logging")
                 del image
             sentry_sdk.capture_exception(e)
             raise e
