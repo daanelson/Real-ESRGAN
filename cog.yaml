@@ -1,5 +1,6 @@
 build:
   gpu: true
+  cuda: "12.1"
 
   # a list of ubuntu apt packages to install
   system_packages:
@@ -7,19 +8,18 @@ build:
     - "libglib2.0-0"
 
   # python version in the form '3.8' or '3.8.12'
-  python_version: "3.8"
+  python_version: "3.11"
   python_packages:
-    - "numpy==1.20"
-    - "torch==1.11.0"
-    - "torchvision==0.12.0"
-    - "facexlib==0.2.3"
-    - "opencv-python==4.6.0.66"
-    - "Pillow==9.1.1"
+    - "numpy<2"
+    - "torch==2.2.0"
+    - "torchvision==0.17.0"
+    - "facexlib==0.3.0"
+    - "opencv-python==4.10.0.84"
+    - "Pillow==10.4.0"
     - "tqdm==4.64.0"
-    - "sentry-sdk"
 
   run:
-    - "pip install basicsr"
+    - "pip install git+https://github.com/XPixelGroup/BasicSR.git"
     - "pip install gfpgan"
     - "pip install realesrgan"
     - curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/download/v0.8.2/pget_linux_x86_64" && chmod +x /usr/local/bin/pget
